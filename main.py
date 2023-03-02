@@ -171,7 +171,7 @@ if __name__ == '__main__':
                     allow_insert = True
                     timestamp = datetime.datetime.now()
                     if(last_inserted_time != None):
-                        if(timestamp - last_inserted_time < 10):
+                        if((timestamp - last_inserted_time).total_seconds() < 10):
                             allow_insert = False
                     
                     if allow_insert:
