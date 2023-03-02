@@ -30,6 +30,7 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 doc_ref = db.collection('recorded_falls')
+last_inserted_time = None
 
 def preproc(image):
     """preprocess function for CameraLoader.
@@ -168,16 +169,16 @@ if __name__ == '__main__':
                     uuid_ref = doc_ref.where('uuid', '==', uuid).order_by('timestamp', direction=firestore.Query.DESCENDING).limit(1)
                     docs = uuid_ref.get()
                     allow_insert = True
-                    for doc in docs:
-                        last_inserted_time = doc.to_dict()['timestamp'].timestamp()
-                        current_time = time.time()
-                        if current_time - last_inserted_time < 15:
+                    timestamp = datetime.datetime.now()
+                    if(last_inserted_time != None):
+                        if(timestamp - last_inserted_time < 10):
                             allow_insert = False
                     
                     if allow_insert:
                         retval, buffer = cv2.imencode('.jpg', frame)
                         jpg_as_text = base64.b64encode(buffer)
-                        timestamp = datetime.datetime.now()
+                        
+                        last_inserted_time = timestamp
                         doc_data = {
                             'uuid': uuid,
                             'timestamp': timestamp,
