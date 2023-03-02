@@ -164,7 +164,7 @@ if __name__ == '__main__':
                 action_name = action_model.class_names[out[0].argmax()]
                 action = '{}: {:.2f}%'.format(action_name, out[0].max() * 100)
                 if action_name == 'Fall Down':
-
+                    print('Fall Detected...')
                     uuid_ref = doc_ref.where('uuid', '==', uuid).order_by('timestamp', direction=firestore.Query.DESCENDING).limit(1)
                     docs = uuid_ref.get()
                     allow_insert = True
