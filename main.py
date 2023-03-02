@@ -25,7 +25,7 @@ from ActionsEstLoader import TSSTG
 source = 'rtsp://10.61.77.78:5540/ch0'
 #source = 2
 
-cred = credentials.Certificate('/content/rpms-fall-detect/rpms-fireabse.json')
+cred = credentials.Certificate('/content/rpms-fall-detect/rpms-firebase.json')
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
