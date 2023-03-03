@@ -122,6 +122,8 @@ if __name__ == '__main__':
     while cam.grabbed():
         f += 1
         frame = cam.getitem()
+        image = frame.copy()
+
         tstamp = datetime.datetime.now()
         capture_emotion = False
         if(ltstamp == None):
@@ -132,15 +134,14 @@ if __name__ == '__main__':
                 capture_emotion = True
         
         if capture_emotion:
-            cv2.imwrite("frame.jpg", frame)
-            res = DeepFace.analyze(img_path = 'frame.jpg', 
+            res = DeepFace.analyze(img_path = image, 
             actions = ['emotion'])
             dom_emotion = (res[0]['dominant_emotion'])
             realtimeRef.child(uuid).set({
                 'emotion': dom_emotion
             })
 
-        image = frame.copy()
+        
 
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10)
