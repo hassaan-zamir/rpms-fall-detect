@@ -4,11 +4,13 @@ import time
 import torch
 import argparse
 import numpy as np
+from deepface import DeepFace
 import datetime
 import base64
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+from firebase_admin import db
 
 from Detection.Utils import ResizePadding
 from CameraLoader import CamLoader, CamLoader_Q
@@ -26,7 +28,11 @@ source = 'rtsp://10.61.77.78:5540/ch0'
 #source = 2
 
 cred = credentials.Certificate('/content/rpms-fall-detect/rpms-firebase.json')
-firebase_admin.initialize_app(cred)
+firebase_admin.initialize_app(cred, {
+    'databaseURL' : 'https://rpms-7cf60-default-rtdb.firebaseio.com'
+})
+
+realtimeRef = db.reference()
 
 db = firestore.client()
 doc_ref = db.collection('recorded_falls')
@@ -111,9 +117,28 @@ if __name__ == '__main__':
 
     fps_time = 0
     f = 0
+    
+    ltstamp = None
     while cam.grabbed():
         f += 1
         frame = cam.getitem()
+        tstamp = datetime.datetime.now()
+        capture_emotion = False
+        if(ltstamp == None):
+            capture_emotion = True
+        else:
+            if (tstamp - ltstamp).total_seconds() < 5:
+                ltstamp = datetime.datetime.now()
+                capture_emotion = True
+        
+        if capture_emotion:
+            res = DeepFace.analyze(img_path = frame, 
+            actions = ['emotion'])
+            dom_emotion = (res[0]['dominant_emotion'])
+            realtimeRef.child(uuid).set({
+                'emotion': dom_emotion
+            })
+
         image = frame.copy()
 
         # Detect humans bbox in the frame with detector model.
@@ -182,7 +207,8 @@ if __name__ == '__main__':
                         doc_data = {
                             'uuid': uuid,
                             'timestamp': timestamp,
-                            'frame_data': jpg_as_text
+                            'frame_data': jpg_as_text,
+                            'status': False,
                         }
                         doc_ref.document().set(doc_data)
                     clr = (255, 0, 0)
