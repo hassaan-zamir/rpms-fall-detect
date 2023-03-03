@@ -4,7 +4,7 @@ import time
 import torch
 import argparse
 import numpy as np
-from deepface import DeepFace
+from emopy.detectors import DeepFaceDetector
 import datetime
 import base64
 import firebase_admin
@@ -26,7 +26,7 @@ from ActionsEstLoader import TSSTG
 #source = '../Data/falldata/Home/Videos/video (2).avi'  # hard detect
 source = 'rtsp://10.61.77.78:5540/ch0'
 #source = 2
-
+detector = DeepFaceDetector()
 cred = credentials.Certificate('/content/rpms-fall-detect/rpms-firebase.json')
 firebase_admin.initialize_app(cred, {
     'databaseURL' : 'https://rpms-7cf60-default-rtdb.firebaseio.com'
@@ -136,13 +136,15 @@ if __name__ == '__main__':
         if capture_emotion:
             try:
                 print('test')
-                cv2.imwrite('frame.jpg', image)
-                res = DeepFace.analyze(img_path = '/content/frame.jpg', 
-                actions = ['emotion'])
-                print('here atleast')
-                dom_emotion = (res[0]['dominant_emotion'])
-                print(dom_emotion)
-                realtimeRef.child(uuid).set({'emotion': dom_emotion})
+                emotions = detector.detect(frame)
+                print(emotions)
+                # cv2.imwrite('frame.jpg', image)
+                # res = DeepFace.analyze(img_path = '/content/frame.jpg', 
+                # actions = ['emotion'])
+                # print('here atleast')
+                # dom_emotion = (res[0]['dominant_emotion'])
+                # print(dom_emotion)
+                # realtimeRef.child(uuid).set({'emotion': dom_emotion})
             except:
                 print('Couldnt detect emotion')
 
