@@ -134,12 +134,16 @@ if __name__ == '__main__':
                 capture_emotion = True
         
         if capture_emotion:
-            cv2.imwrite('frame.jpg', image)
-            res = DeepFace.analyze(img_path = '/content/frame.jpg', 
-            actions = ['emotion'])
-            dom_emotion = (res[0]['dominant_emotion'])
-            print(dom_emotion)
-            realtimeRef.child(uuid).set({'emotion': dom_emotion})
+            try:
+                cv2.imwrite('frame.jpg', image)
+                res = DeepFace.analyze(img_path = '/content/frame.jpg', 
+                actions = ['emotion'])
+                print('here atleast')
+                dom_emotion = (res[0]['dominant_emotion'])
+                print(dom_emotion)
+                realtimeRef.child(uuid).set({'emotion': dom_emotion})
+            except:
+                print('Couldnt detect emotion')
 
         
 
