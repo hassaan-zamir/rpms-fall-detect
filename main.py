@@ -78,7 +78,7 @@ if __name__ == '__main__':
 
     uuid = args.uuid
     device = args.device
-
+    print('hey')
     # DETECTION MODEL.
     inp_dets = args.detection_input_size
     detect_model = TinyYOLOv3_onecls(inp_dets, device=device)
@@ -135,6 +135,7 @@ if __name__ == '__main__':
         
         if capture_emotion:
             try:
+                print('test')
                 cv2.imwrite('frame.jpg', image)
                 res = DeepFace.analyze(img_path = '/content/frame.jpg', 
                 actions = ['emotion'])
