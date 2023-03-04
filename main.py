@@ -10,7 +10,6 @@ import base64
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
-from firebase_admin import db
 
 from Detection.Utils import ResizePadding
 from CameraLoader import CamLoader, CamLoader_Q
@@ -31,8 +30,6 @@ cred = credentials.Certificate('/content/rpms-fall-detect/rpms-firebase.json')
 firebase_admin.initialize_app(cred, {
     'databaseURL' : 'https://rpms-7cf60-default-rtdb.firebaseio.com'
 })
-
-realtimeRef = db.reference()
 
 db = firestore.client()
 doc_ref = db.collection('recorded_falls')
@@ -78,7 +75,6 @@ if __name__ == '__main__':
 
     uuid = args.uuid
     device = args.device
-    print('hey')
     # DETECTION MODEL.
     inp_dets = args.detection_input_size
     detect_model = TinyYOLOv3_onecls(inp_dets, device=device)
@@ -123,30 +119,6 @@ if __name__ == '__main__':
         f += 1
         frame = cam.getitem()
         image = frame.copy()
-
-        tstamp = datetime.datetime.now()
-        capture_emotion = False
-        if(ltstamp == None):
-            capture_emotion = True
-        else:
-            if (tstamp - ltstamp).total_seconds() < 5:
-                ltstamp = datetime.datetime.now()
-                capture_emotion = True
-        
-        # if capture_emotion:
-        #     try:
-        #         print('test')
-        #         cv2.imwrite('frame.jpg', image)
-        #         res = DeepFace.analyze(img_path = '/content/frame.jpg', 
-        #         actions = ['emotion'])
-        #         print('here atleast')
-        #         dom_emotion = (res[0]['dominant_emotion'])
-        #         print(dom_emotion)
-        #         realtimeRef.child(uuid).set({'emotion': dom_emotion})
-        #     except:
-        #         print('Couldnt detect emotion')
-
-        
 
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10)
@@ -203,7 +175,7 @@ if __name__ == '__main__':
                     allow_insert = True
                     timestamp = datetime.datetime.now()
                     if(last_inserted_time != None):
-                        if((timestamp - last_inserted_time).total_seconds() < 10):
+                        if((timestamp - last_inserted_time).total_seconds() < 5):
                             allow_insert = False
                     
                     if allow_insert:
