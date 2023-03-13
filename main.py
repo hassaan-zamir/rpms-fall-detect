@@ -119,6 +119,7 @@ if __name__ == '__main__':
         f += 1
         frame = cam.getitem()
         image = frame.copy()
+        
 
         # Detect humans bbox in the frame with detector model.
         detected = detect_model.detect(frame, need_resize=False, expand_bb=10)
